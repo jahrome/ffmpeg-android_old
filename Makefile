@@ -74,6 +74,10 @@ $(foreach D,$(FFLIBS),$(eval $(call DOSUBDIR,lib$(D))))
 ffplay_g$(EXESUF): FF_EXTRALIBS += $(SDL_LIBS)
 ffserver_g$(EXESUF): FF_LDFLAGS += $(FFSERVERLDFLAGS)
 
+ffmpeg_g$(EXESUF): FF_LDFLAGS += $(EXE_LDFLAGS)
+ffplay_g$(EXESUF): FF_LDFLAGS += $(EXE_LDFLAGS)
+ffserver_g$(EXESUF): FF_LDFLAGS += $(EXE_LDFLAGS)
+
 %_g$(EXESUF): %.o cmdutils.o $(FF_DEP_LIBS)
 	$(LD) $(FF_LDFLAGS) -o $@ $< cmdutils.o $(FF_EXTRALIBS)
 

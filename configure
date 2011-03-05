@@ -70,6 +70,7 @@ Standard options:
   --shlibdir=DIR           install shared libs in DIR [PREFIX/lib]
   --incdir=DIR             install includes in DIR [PREFIX/include]
   --mandir=DIR             install man page in DIR [PREFIX/share/man]
+  --soname-prefix=PREFIX   add PREFIX before the libraries soname
 
 Configuration options:
   --disable-static         do not build static libraries [no]
@@ -210,8 +211,10 @@ Advanced options (experts only):
   --host-libs=HLIBS        use libs HLIBS when linking for host
   --extra-cflags=ECFLAGS   add ECFLAGS to CFLAGS [$CFLAGS]
   --extra-ldflags=ELDFLAGS add ELDFLAGS to LDFLAGS [$LDFLAGS]
+  --extra-exe-ldflags=ELDFLAGS add ELDFLAGS to LDFLAGS for executables [$LDFLAGS]
   --extra-libs=ELIBS       add ELIBS [$ELIBS]
   --extra-version=STRING   version string suffix []
+  --optimization-flags=FLAGS use FLAGS instead of the optimization flags chosen by other options []
   --build-suffix=SUFFIX    library name suffix []
   --arch=ARCH              select architecture [$arch]
   --cpu=CPU                select the minimum required CPU (affects
@@ -570,6 +573,10 @@ add_asflags(){
 
 add_ldflags(){
     append LDFLAGS "$@"
+}
+
+add_exe_ldflags(){
+    append EXE_LDFLAGS "$@"
 }
 
 add_extralibs(){
@@ -1136,6 +1143,7 @@ PATHS_LIST='
     mandir
     prefix
     shlibdir
+    soname_prefix
 '
 
 CMDLINE_SET="
@@ -1158,6 +1166,7 @@ CMDLINE_SET="
     logfile
     malloc_prefix
     nm
+    optimization_flags
     samples
     source_path
     strip
@@ -1453,6 +1462,7 @@ incdir_default='${prefix}/include'
 libdir_default='${prefix}/lib'
 mandir_default='${prefix}/share/man'
 shlibdir_default="$libdir_default"
+soname_prefix_default=""
 
 # toolchain
 ar_default="ar"
@@ -1499,7 +1509,7 @@ enable swscale
 enable swscale_alpha
 
 # build settings
-SHFLAGS='-shared -Wl,-soname,$$(@F)'
+SHFLAGS='-shared -Wl,-soname,$$(SONAME_PREFIX)$$(@F)'
 FFSERVERLDFLAGS=-Wl,-E
 LIBPREF="lib"
 LIBSUF=".a"
@@ -1589,6 +1599,8 @@ for opt do
     optval="${opt#*=}"
     case "$opt" in
     --extra-ldflags=*) add_ldflags $optval
+    ;;
+    --extra-exe-ldflags=*) add_exe_ldflags $optval
     ;;
     --extra-libs=*) add_extralibs $optval
     ;;
@@ -2752,10 +2764,30 @@ EOF
 fi
 
 if enabled small; then
-    add_cflags $size_cflags
+    if test "$optimization_flags" != ""; then
+        add_cflags $optimization_flags
+    else
+        add_cflags $size_cflags
+    fi
     optimizations="small"
 elif enabled optimizations; then
-    add_cflags $speed_cflags
+    if test "$optimization_flags" != ""; then
+        if enabled xlc; then
+            add_cflags  $optimization_flags
+            add_ldflags $optimization_flags
+        else
+            add_cflags $optimization_flags
+        fi
+     else
+        if enabled xlc; then
+            add_cflags  -O5
+            add_ldflags -O5
+        elif enabled ccc; then
+            add_cflags -fast
+        else
+            add_cflags -O3
+        fi
+     fi
 else
     add_cflags $noopt_cflags
 fi
@@ -3003,6 +3035,7 @@ CFLAGS=$CFLAGS
 ASFLAGS=$ASFLAGS
 CC_O=$CC_O
 LDFLAGS=$LDFLAGS
+EXE_LDFLAGS=$EXE_LDFLAGS
 FFSERVERLDFLAGS=$FFSERVERLDFLAGS
 SHFLAGS=$SHFLAGS
 YASMFLAGS=$YASMFLAGS
