@@ -1,0 +1,90 @@
+diff -ur android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/asm/byteorder.h android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/asm/byteorder.h
+--- android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/asm/byteorder.h	2009-10-09 10:13:52.000000000 +0300
++++ android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/asm/byteorder.h	2009-10-09 11:55:34.000000000 +0300
+@@ -22,7 +22,7 @@
+ #ifndef __thumb__
+  if (!__builtin_constant_p(x)) {
+ 
+- asm ("eor\t%0, %1, %1, ror #16" : "=r" (t) : "r" (x));
++ __asm__ ("eor\t%0, %1, %1, ror #16" : "=r" (t) : "r" (x));
+  } else
+ #endif
+  t = x ^ ((x << 16) | (x >> 16));
+diff -ur android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/stdint.h android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/stdint.h
+--- android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/stdint.h	2009-10-09 10:13:53.000000000 +0300
++++ android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/stdint.h	2009-10-09 10:16:28.000000000 +0300
+@@ -46,13 +46,17 @@
+ #  define  __STDINT_MACROS
+ #endif
+ 
++#if !defined __STRICT_ANSI__ || __STDC_VERSION__ >= 199901L
++#  define __STDC_INT64__
++#endif
++
+ typedef __int8_t      int8_t;
+ typedef __uint8_t     uint8_t;
+ typedef __int16_t     int16_t;
+ typedef __uint16_t    uint16_t;
+ typedef __int32_t     int32_t;
+ typedef __uint32_t    uint32_t;
+-#if !defined(__STRICT_ANSI__)
++#if defined(__STDC_INT64__)
+ typedef __int64_t     int64_t;
+ typedef __uint64_t    uint64_t;
+ #endif
+@@ -157,7 +161,7 @@
+ #  define UINT_FAST32_C(c) UINT32_C(c)
+ #endif
+ 
+-#if !defined(__STRICT_ANSI__)
++#if defined(__STDC_INT64__)
+ /*
+  *  int64_t
+  */
+@@ -198,7 +202,7 @@
+ #  define __PRIFAST_RANK ""
+ #  define __PRIPTR_RANK  ""
+ 
+-#endif /* !__STRICT_ANSI__ */
++#endif /* __STDC_INT64__ */
+ 
+ /*
+  * intptr_t & uintptr_t
+@@ -221,7 +225,7 @@
+  *  intmax_t & uintmax_t
+  */
+ 
+-#if !defined(__STRICT_ANSI__)
++#if defined(__STDC_INT64__)
+ 
+ typedef uint64_t uintmax_t;
+ typedef int64_t  intmax_t;
+@@ -233,7 +237,7 @@
+ #define INTMAX_C(c)	INT64_C(c)
+ #define UINTMAX_C(c)	UINT64_C(c)
+ 
+-#else /* __STRICT_ANSI__ */
++#else /* !__STDC_INT64__ */
+ 
+ typedef uint32_t  uintmax_t;
+ typedef int32_t   intmax_t;
+@@ -245,7 +249,7 @@
+ #define INTMAX_C(c)	INT32_C(c)
+ #define UINTMAX_C(c)	UINT32_C(c)
+ 
+-#endif /* __STRICT_ANSI__ */
++#endif /* !__STDC_INT64__ */
+ 
+ 
+ /* size_t is defined by the GCC-specific <stddef.h> */
+diff -ur android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/strings.h android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/strings.h
+--- android-ndk-1.6_r1-orig/build/platforms/android-3/arch-arm/usr/include/strings.h	2009-10-09 10:13:53.000000000 +0300
++++ android-ndk-1.6_r1/build/platforms/android-3/arch-arm/usr/include/strings.h	2009-10-09 10:16:24.000000000 +0300
+@@ -39,6 +39,7 @@
+ #ifndef _STRINGS_H_
+ #define _STRINGS_H_
+ 
++#include <sys/types.h>
+ #include <sys/cdefs.h>
+ 
+ __BEGIN_DECLS
