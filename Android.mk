@@ -4,6 +4,8 @@ LIB_PATH := build/ffmpeg/lib/
 
 include $(CLEAR_VARS)
 
+LOCAL_MODULE_TAGS:=eng debug
+
 LOCAL_PREBUILT_LIBS := \
 	$(LIB_PATH)/libavformat.so	\
 	$(LIB_PATH)/libavutil.so	\
