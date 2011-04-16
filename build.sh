@@ -20,7 +20,7 @@ FLAGS="--target-os=linux --cross-prefix=arm-linux-androideabi- --arch=arm"
 FLAGS="$FLAGS --prefix=build/ffmpeg"
 #FLAGS="$FLAGS --soname-prefix=/data/data/com.bambuser.broadcaster/lib/"
 FLAGS="$FLAGS --enable-shared"
-FLAGS="$FLAGS --enable-small --optimization-flags=-O2"
+FLAGS="$FLAGS --optimization-flags=-O2"
 #FLAGS="$FLAGS --disable-encoders --disable-decoders --disable-protocols --disable-muxers --disable-demuxers --disable-parsers --disable-devices --disable-filters --disable-bsfs"
 FLAGS="$FLAGS --enable-encoder=mpeg2video"
 
