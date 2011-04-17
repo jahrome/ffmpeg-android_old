@@ -1,7 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
 LIB_PATH := build/ffmpeg/lib/
-BIN_PATH := build/ffmpeg/lib/
+BIN_PATH := build/ffmpeg/bin/
 
 include $(CLEAR_VARS)
 
